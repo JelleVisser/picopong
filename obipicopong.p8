@@ -41,10 +41,13 @@ function _update60()
 	player_update()
 	ball_update()
 	opponent_update()
+	particles_update()
 end
 
 function _draw()
 	cls(1)	
+	
+	particles_draw()
 	
 	print("obipicopong", 44,34,0)
 	print("score: "..score, 44, 44,3)
@@ -56,7 +59,7 @@ function _draw()
 
 	rectfill(p.x,p.y,p.x+p.w,p.y+p.h,7)
 	rectfill(o.x,o.y,o.x+o.w,o.y+o.h,7)
-	circfill(ball.x,ball.y,ball.size,9)
+	circfill(ball.x,ball.y,ball.size,12)
 	
 end	
 -->8
@@ -106,6 +109,7 @@ end
 function ball_bounce()
 	if(ball.y>128 or ball.y<0) then
 	 ball.vy*=-1
+	 particle_start(ball.x, ball.y,3,5) 
 	end
 	
 	-- bounce at player
@@ -114,6 +118,7 @@ function ball_bounce()
     ball.x==p.x+p.w)then
   ball.vx*=-1  
   score+=1
+  particle_start(ball.x, ball.y,5,12) 
   sfx(0)
  end
  
@@ -123,7 +128,8 @@ function ball_bounce()
     ball.x==o.x)then
   ball.vx*=-1
   ball.vy=rnd(6)-3 
-  score+=1 
+  score+=1
+  particle_start(ball.x, ball.y,5,12) 
   sfx(0)
  end
  
@@ -151,6 +157,65 @@ function opponent_bounds()
 	 o.y = 128-o.h
 	end
 end
+-->8
+-- particles
+sparks={}
+
+for i=1,200 do
+ add(sparks, {
+ x=0,
+ y=0,
+ vx=0,
+ vy=0,
+ r=0,
+ alive=false,
+ mass=0 
+ })
+end
+
+function particle_start(x,y,r,particles)
+	local selected = 0
+	for i=1,#sparks do
+	 if not sparks[i].alive then
+	  sparks[i].x = x
+	  sparks[i].y = y
+	  sparks[i].vely = -1 + rnd(2)
+	  sparks[i].velx = -1 + rnd(2)
+	  sparks[i].mass = 0.5 + rnd(2)
+	  sparks[i].r = 0.5 + rnd(r)
+	  sparks[i].alive = true
+	  selected += 1
+	  if selected == particles then
+	  break end
+	 end
+	end
+end
+
+function particles_update()
+ for i=1,#sparks do
+  if sparks[i].alive then
+   sparks[i].x+=sparks[i].velx /sparks[i].mass
+   sparks[i].y+=sparks[i].vely /sparks[i].mass
+		 sparks[i].r-= 0.1
+		 if sparks[i].r < 0.1 then
+		  sparks[i].alive = false
+		 end
+		end
+	end
+end
+
+function particles_draw()
+ for i=1,#sparks do
+  if sparks[i].alive then
+   circfill(
+   sparks[i].x,
+   sparks[i].y,
+   sparks[i].r,
+   10
+   )
+  end
+ end 
+end 
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
