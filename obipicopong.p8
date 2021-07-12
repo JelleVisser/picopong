@@ -12,7 +12,7 @@ function _init()
 	 x=2,
 	 y=64,
 	 w=2,
-	 h=20,
+	 h=30,
 	}
 	
 	-- o = opponent
@@ -20,7 +20,7 @@ function _init()
 	 x=124,
 	 y=64,
 	 w=2,
-	 h=20
+	 h=30
 	}
 	
 	ball={}
@@ -35,6 +35,7 @@ function _update60()
 	  isgameover = false
 	  score = 0
 	  ball_reset(ball)
+	  p.h = 30
 	 end
 	 return
 	end
@@ -110,6 +111,7 @@ function ball_bounce()
 	if(ball.y>128 or ball.y<0) then
 	 ball.vy*=-1
 	 particle_start(ball.x, ball.y,3,5) 
+	 sfx(2)
 	end
 	
 	-- bounce at player
@@ -119,6 +121,7 @@ function ball_bounce()
   ball.vx*=-1  
   score+=1
   particle_start(ball.x, ball.y,5,12) 
+  if(p.h> 10) p.h-=1
   sfx(0)
  end
  
@@ -130,11 +133,13 @@ function ball_bounce()
   ball.vy=rnd(6)-3 
   score+=1
   particle_start(ball.x, ball.y,5,12) 
+  if(p.h> 10) p.h-=1
   sfx(0)
  end
  
  if (ball.x < 0) then 
   isgameover=true
+  sfx(3)
   if (score > hiscore) hiscore = score
  end
 end
@@ -173,45 +178,45 @@ for i=1,200 do
  })
 end
 
-function particle_start(x,y,r,particles)
+function particle_start(x,y,r,amount)
 	local selected = 0
-	for i=1,#sparks do
-	 if not sparks[i].alive then
-	  sparks[i].x = x
-	  sparks[i].y = y
-	  sparks[i].vely = -1 + rnd(2)
-	  sparks[i].velx = -1 + rnd(2)
-	  sparks[i].mass = 0.5 + rnd(2)
-	  sparks[i].r = 0.5 + rnd(r)
-	  sparks[i].alive = true
+	for s in all(sparks) do
+	 if not s.alive then
+	  s.x = x
+	  s.y = y
+	  s.vely = -1 + rnd(2)
+	  s.velx = -1 + rnd(2)
+	  s.mass = 0.5 + rnd(2)
+	  s.r = 0.5 + rnd(r)
+	  s.alive = true
 	  selected += 1
-	  if selected == particles then
+	  if selected == amount then
 	  break end
 	 end
 	end
 end
 
 function particles_update()
- for i=1,#sparks do
-  if sparks[i].alive then
-   sparks[i].x+=sparks[i].velx /sparks[i].mass
-   sparks[i].y+=sparks[i].vely /sparks[i].mass
-		 sparks[i].r-= 0.1
-		 if sparks[i].r < 0.1 then
-		  sparks[i].alive = false
+ for s in all(sparks) do
+  if s.alive then
+   s.x+=s.velx /s.mass
+   s.y+=s.vely /s.mass
+		 s.r-= 0.1
+		 if s.r < 0.1 then
+		  s.alive = false
 		 end
 		end
 	end
 end
 
 function particles_draw()
- for i=1,#sparks do
-  if sparks[i].alive then
+ for s in all(sparks) do
+  if s.alive then
    circfill(
-   sparks[i].x,
-   sparks[i].y,
-   sparks[i].r,
-   10
+    s.x,
+    s.y,
+    s.r,
+    10
    )
   end
  end 
@@ -358,6 +363,8 @@ __map__
 __sfx__
 00010000150101f010270102d01031010330102a0100c010080100a01011010220101001008010040100201001010010100000000000000000000000000000000000000000000000000000000000000000000000
 001100001d010000001f0100000021010000001d010000001d010000001f0100000021010000001d010000001f010000001a010000001d01000000210100000018010000001a010000001c0101c0101c0101c010
+00010000201102011021110221102211022110131001310013100131001310013100131001310013100141001610017100191001c1001e1000710007100000000000000000000000000000000000000000000000
+00020000300102f0102d0102b010290102702025020210201e0201c020190201602014020110200e0200c0200b020080200702006020050200302002010000100011000000000000000000000000000000000000
 __music__
 00 01424344
 
